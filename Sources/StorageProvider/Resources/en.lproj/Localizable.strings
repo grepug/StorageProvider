@@ -25,3 +25,6 @@
 "settings_icloud_SyncSummaryStatus_succeeded" = "Succeeded";
 "settings_icloud_SyncSummaryStatus_notStarted" = "Not Started";
 "settings_icloud_SyncSummaryStatus_unknown" = "Unknown Error";
+
+"action_enable" = "Enable";
+"action_title_caution" = "Notice";

@@ -58,7 +58,7 @@ public struct iCloudSettingsView: View {
             Section {
                 HStack {
                     Label(title: {
-                        Text("action_enable")
+                        Text("action_enable", bundle: .module)
                     }, icon: {
                         Image(systemName: "crown.fill")
                             .foregroundColor(.orange)
@@ -68,7 +68,7 @@ public struct iCloudSettingsView: View {
                     
                     Button("") {}
                         .alert(item: $showingAlertMessage) { message in
-                            Alert(title: Text("action_title_caution"),
+                            Alert(title: Text("action_title_caution", bundle: .module),
                                   message: Text(message.rawValue.loc))
                         }
                         .opacity(0)

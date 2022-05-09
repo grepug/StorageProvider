@@ -26,3 +26,6 @@
 "settings_icloud_SyncSummaryStatus_succeeded" = "同步成功";
 "settings_icloud_SyncSummaryStatus_notStarted" = "未开始";
 "settings_icloud_SyncSummaryStatus_unknown" = "未知错误";
+
+"action_enable" = "开启";
+"action_title_caution" = "提示";
