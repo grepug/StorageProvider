@@ -14,6 +14,7 @@ public protocol SyncMonitorWithCloudKit {
     
     var isPro: Bool { get }
     var iCloudEnabled: Bool { get }
+    func iCloudToggle(iCloudEnabled: Bool)
 }
 
 public extension SyncMonitorWithCloudKit {
