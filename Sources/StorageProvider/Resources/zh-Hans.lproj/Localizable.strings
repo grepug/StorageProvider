@@ -1,1 +1,28 @@
-"settings_icloud_status" = "iCloud 同步状态2";
+"settings_icloud_title" = "iCloud 同步";
+
+"settings_icloud_button_enable" = "开启";
+"settings_icloud_button_disabled" = "关闭";
+"settings_icloud_status_enabled" = "已开启";
+"settings_icloud_status_disabled" = "已关闭";
+"settings_icloud_footer_disable" = "请到系统设置 app 的 iCloud 选项中关闭";
+"settings_icloud_footer_enable_in_system_settings" = "请先到系统设置 app 的 iCloud 选项中开启 Vision 的 iCloud 同步功能（须开启 iCloud 云盘）";
+
+"settings_icloud_status" = "同步状态";
+"settings_icloud_state_notStarted" = "未开始";
+"settings_icloud_state_inProgress" = "进行中自";
+"settings_icloud_state_succeeded" = "完成于";
+"settings_icloud_state_failed" = "失败于";
+"settings_icloud_header_error_message" = "错误信息";
+"settings_icloud_state_title_setup" = "配置状态";
+"settings_icloud_state_title_import" = "下载状态";
+"settings_icloud_state_title_export" = "上传状态";
+"settings_icloud_footer_failed" = "若同步不成功，可通过切换 Wi-Fi 和 4G/5G 网或切换飞行模式重试";
+
+"settings_icloud_SyncSummaryStatus_inProgress" = "正在同步";
+"settings_icloud_SyncSummaryStatus_error" = "同步错误";
+"settings_icloud_SyncSummaryStatus_accountNotAvailable" = "Apple ID 不可用";
+"settings_icloud_SyncSummaryStatus_notSyncing" = "未同步";
+"settings_icloud_SyncSummaryStatus_noNetwork" = "无网络";
+"settings_icloud_SyncSummaryStatus_succeeded" = "同步成功";
+"settings_icloud_SyncSummaryStatus_notStarted" = "未开始";
+"settings_icloud_SyncSummaryStatus_unknown" = "未知错误";

@@ -93,7 +93,7 @@ extension iCloudSettingsView {
     var iCloudSyncStatus: some View {
         Section {
             HStack {
-                Text("settings_icloud_status")
+                Text("settings_icloud_status", bundle: .module)
                 Spacer()
                 HStack {
                     Text(syncMonitor.syncStateSummary.text)
@@ -112,7 +112,7 @@ extension iCloudSettingsView {
                     .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
             }
         } footer: {
-            Text("settings_icloud_footer_failed")
+            Text("settings_icloud_footer_failed", bundle: .module)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .foregroundColor(.secondary)
@@ -125,7 +125,7 @@ extension iCloudSettingsView {
     
     func stateTextView(_ title: LocalizedStringKey, for state: SyncMonitor.SyncState) -> some View {
         HStack {
-            Text(title)
+            Text(title, bundle: .module)
             Spacer()
             Text(stateText(for: state))
                 .foregroundColor(.secondary)

@@ -1,1 +1,27 @@
-"settings_icloud_status" = "iCloud 同步状态2";
+"settings_icloud_title" = "iCloud Sync";
+"settings_icloud_status" = "iCloud Sync Status";
+"settings_icloud_button_enable" = "Enable";
+"settings_icloud_button_disabled" = "Disable";
+"settings_icloud_status_enabled" = "Enabled";
+"settings_icloud_status_disabled" = "Disabled";
+"settings_icloud_footer_disable" = "To disable iCloud sync, please go to System Settings app.";
+"settings_icloud_footer_enable_in_system_settings" = "To enable iCloud sync, please enable it in the System Settings app first (iCloud Drive is required).";
+
+"settings_icloud_state_notStarted" = "Not Started";
+"settings_icloud_state_inProgress" = "In Progress Since";
+"settings_icloud_state_succeeded" = "Succeeded at";
+"settings_icloud_state_failed" = "Failed at";
+"settings_icloud_header_error_message" = "Error Messages";
+"settings_icloud_state_title_setup" = "Setup State";
+"settings_icloud_state_title_import" = "Import State";
+"settings_icloud_state_title_export" = "Export State";
+"settings_icloud_footer_failed" = "You can change your network settings by switching between Wi-Fi and 4G/5G or turning on and off the flight mode if it fails to sync.";
+
+"settings_icloud_SyncSummaryStatus_inProgress" = "In Progress";
+"settings_icloud_SyncSummaryStatus_error" = "Error";
+"settings_icloud_SyncSummaryStatus_accountNotAvailable" = "Apple ID Not Availiable";
+"settings_icloud_SyncSummaryStatus_notSyncing" = "Not Syncing";
+"settings_icloud_SyncSummaryStatus_noNetwork" = "No Network";
+"settings_icloud_SyncSummaryStatus_succeeded" = "Succeeded";
+"settings_icloud_SyncSummaryStatus_notStarted" = "Not Started";
+"settings_icloud_SyncSummaryStatus_unknown" = "Unknown Error";

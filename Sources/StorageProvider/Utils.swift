@@ -9,11 +9,11 @@ import UIKit
 
 extension String {
     var loc: Self {
-        String(format: NSLocalizedString(self, comment: ""), "")
+        NSLocalizedString(self, bundle: .module, comment: "")
     }
     
     func loc(_ string: String) -> Self {
-        String(format: NSLocalizedString(self, comment: ""), string)
+        String(format: NSLocalizedString(self, bundle: .module, comment: ""), string)
     }
 }
 
