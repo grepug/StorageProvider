@@ -23,6 +23,7 @@ public extension ManagedObject {
 }
 
 public extension ManagedObject {
+    @available(iOS 15.0, *)
     static func fetch(where predicate: NSPredicate?,
                       sortedBy sortDescriptors: [NSSortDescriptor]?,
                       fetchLimit: Int?,
