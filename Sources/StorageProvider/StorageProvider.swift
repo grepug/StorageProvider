@@ -1,14 +1,21 @@
+//
+//  StorageProvider.swift
+//
+//
+//  Created by Kai on 2022/5/8.
+//
+
 import CoreData
 import Foundation
 
 public class StorageProvider {
-    lazy var persistentContainer = makeContainer()
+    public lazy var persistentContainer = makeContainer()
+
     var objectModel: NSManagedObjectModel?
-    
     let modelName: String
     let databaseName: String
     let appGroupIdentifier: String
-    let iCloudEnabled: Bool
+    var iCloudEnabled: Bool
     let iCloudContainerIdentifier: String?
     
     public init(modelName: String,
@@ -23,6 +30,13 @@ public class StorageProvider {
         self.objectModel = objectModel
         self.iCloudEnabled = iCloudEnabled
         self.iCloudContainerIdentifier = iCloudContainerIdentifier
+    }
+}
+
+public extension StorageProvider {
+    func iCloudToggle(iCloudEnabled: Bool) {
+        self.iCloudEnabled = iCloudEnabled
+        persistentContainer = makeContainer()
     }
 }
 
