@@ -29,3 +29,4 @@
 
 "action_enable" = "开启";
 "action_title_caution" = "提示";
+"view_icloud_status" = "查看 iCloud 同步状态";

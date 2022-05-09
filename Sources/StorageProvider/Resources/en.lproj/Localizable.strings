@@ -28,3 +28,5 @@
 
 "action_enable" = "Enable";
 "action_title_caution" = "Notice";
+"action_cancel" = "Cancel";
+"view_icloud_status" = "iCloud Sync Status";

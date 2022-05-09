@@ -69,8 +69,8 @@ public extension UICellAccessory {
         let ac = UIAlertController(title: "",
                                    message: status.text,
                                    preferredStyle: .alert)
-        ac.addAction(.init(title: "取消", style: .cancel))
-        ac.addAction(.init(title: "查看 iCloud 同步状态",
+        ac.addAction(.init(title: "action_cancel".loc, style: .cancel))
+        ac.addAction(.init(title: "view_icloud_status".loc,
                            style: .default,
                            handler: handler))
         
