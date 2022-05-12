@@ -22,7 +22,7 @@ public class StorageProvider {
                 databaseName: String,
                 appGroupIdentifier: String,
                 iCloudEnabled: Bool,
-                iCloudContainerIdentifier: String? = nil,
+                iCloudContainerIdentifier: String?,
                 objectModel: NSManagedObjectModel? = nil) {
         self.databaseName = databaseName
         self.modelName = modelName
