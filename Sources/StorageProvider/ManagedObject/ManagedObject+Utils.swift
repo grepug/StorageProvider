@@ -54,8 +54,7 @@ public extension ManagedObject {
         myFetch(where: predicate,
                 sortedBy: sortDescriptors,
                 fetchLimit: fetchLimit,
-                context: context,
-                completion: nil)
+                context: context)
     }
     
     static func fetchPublisher<T>(where predicate: NSPredicate? = nil,
@@ -117,12 +116,34 @@ public extension ManagedObject {
 }
 
 extension ManagedObject {
-    @discardableResult
     static func myFetch(where predicate: NSPredicate? = nil,
-                      sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                      fetchLimit: Int? = nil,
-                      context: NSManagedObjectContext?,
-                      completion: (([Self], Error?) -> Void)?) -> [Self] {
+                        sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                        fetchLimit: Int? = nil,
+                        context: NSManagedObjectContext?,
+                        completion: @escaping (([Self], Error?) -> Void)) {
+        let context = context ?? Self.viewContext
+        let request = Self.fetchRequest()
+        request.predicate = predicate
+        request.sortDescriptors = sortDescriptors ?? [.updated, .created]
+        
+        if let fetchLimit = fetchLimit {
+            request.fetchLimit = fetchLimit
+        }
+        
+        context.perform {
+            do {
+                let items = try context.fetch(request) as! [Self]
+                completion(items, nil)
+            } catch {
+                completion([], error)
+            }
+        }
+    }
+    
+    static func myFetch(where predicate: NSPredicate? = nil,
+                        sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                        fetchLimit: Int? = nil,
+                        context: NSManagedObjectContext?) -> [Self] {
         let context = context ?? Self.viewContext
         let request = Self.fetchRequest()
         request.predicate = predicate
@@ -134,10 +155,8 @@ extension ManagedObject {
         
         do {
             let items = try context.fetch(request) as! [Self]
-            completion?(items, nil)
             return items
         } catch {
-            completion?([], error)
             return []
         }
     }
