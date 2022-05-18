@@ -181,6 +181,26 @@ public extension ManagedObject {
     }
 }
 
+public extension Array where Element: ManagedObject {
+    func deleteAll() {
+        guard let context = first?.managedObjectContext else {
+            return
+        }
+        
+        context.performAndWait {
+            for item in self {
+                context.delete(item)
+            }
+        }
+        
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+        }
+    }
+}
+
 public extension NSSortDescriptor {
     static var updated: NSSortDescriptor {
         NSSortDescriptor(key: "updatedAt", ascending: false)
