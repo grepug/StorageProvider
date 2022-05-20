@@ -8,6 +8,10 @@
 import CloudKitSyncMonitor
 import Foundation
 import CloudKit
+import Combine
+import os
+
+fileprivate let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "SyncMonitor")
 
 public protocol SyncMonitorWithCloudKit {
     var iCloudAccountStatus: CKAccountStatus? { get }
@@ -27,5 +31,19 @@ public extension SyncMonitorWithCloudKit {
     var isCloudEnabled: Bool {
         iCloudAccountStatus == .available &&
         shouldCloudInitialize
+    }
+}
+
+public extension CloudKitSyncMonitor.SyncMonitor {
+    var statusPublisher: AnyPublisher<CloudKitSyncMonitor.SyncMonitor.SyncSummaryStatus, Never> {
+        objectWillChange
+            .map { [unowned self] in
+                syncStateSummary
+            }
+            .removeDuplicates()
+            .handleEvents(receiveOutput: { summary in
+                logger.info("cloud sync summary changes: \(summary.text)")
+            })
+            .eraseToAnyPublisher()
     }
 }
