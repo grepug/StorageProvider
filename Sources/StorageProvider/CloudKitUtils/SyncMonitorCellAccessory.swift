@@ -10,7 +10,7 @@ import CloudKitSyncMonitor
 
 public extension UICellAccessory {
     static func cloudSyncIndicator(status: SyncMonitor.SyncSummaryStatus,
-                                   iCloudSettingsViewController: UIViewController) -> UICellAccessory? {
+                                   iCloudSettingsViewController: @autoclosure @escaping () -> UIViewController) -> UICellAccessory? {
         guard let syncMonitor = SyncMonitor.shared as? SyncMonitorWithCloudKit else {
             return nil
         }
@@ -36,7 +36,7 @@ public extension UICellAccessory {
             button.addAction(.init(handler: { _ in
                 let parentVC = button.parentViewController!
                 Self.presentAlertController(status: status,
-                                            iCloudSettingsViewController: iCloudSettingsViewController,
+                                            iCloudSettingsViewController: iCloudSettingsViewController(),
                                             presentingVC: parentVC)
             }), for: .touchUpInside)
             
