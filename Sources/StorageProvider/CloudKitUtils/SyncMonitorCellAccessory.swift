@@ -9,8 +9,7 @@ import UIKit
 import CloudKitSyncMonitor
 
 public extension UICellAccessory {
-    static func cloudSyncIndicator(status: SyncMonitor.SyncSummaryStatus,
-                                   iCloudSettingsViewController: @autoclosure @escaping () -> UIViewController) -> UICellAccessory? {
+    static func cloudSyncIndicator(iCloudSettingsViewController: @autoclosure @escaping () -> UIViewController) -> UICellAccessory? {
         guard let syncMonitor = SyncMonitor.shared as? SyncMonitorWithCloudKit else {
             return nil
         }
@@ -21,6 +20,7 @@ public extension UICellAccessory {
         
         let configuration: CustomViewConfiguration?
         let placement: UICellAccessory.Placement = .trailing(displayed: .always)
+        let status = SyncMonitor.shared.syncStateSummary
         
         switch status {
         case .inProgress:
