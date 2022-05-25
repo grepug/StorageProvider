@@ -5,7 +5,7 @@
 //  Created by Kai on 2022/5/9.
 //
 
-import UIKit
+import Foundation
 
 extension String {
     var loc: Self {
@@ -17,6 +17,9 @@ extension String {
     }
 }
 
+#if os(iOS)
+import UIKit
+
 class ViewControllerWrapper: ObservableObject {
     weak var vc: UIViewController?
 
@@ -24,3 +27,4 @@ class ViewControllerWrapper: ObservableObject {
         vc?.splitViewController?.isCollapsed ?? false
     }
 }
+#endif

@@ -5,6 +5,7 @@
 //  Created by Kai on 2022/5/9.
 //
 
+#if os(iOS)
 import UIKit
 import CloudKitSyncMonitor
 
@@ -85,3 +86,4 @@ extension UIView {
             .flatMap { $0 as? UIViewController }
     }
 }
+#endif

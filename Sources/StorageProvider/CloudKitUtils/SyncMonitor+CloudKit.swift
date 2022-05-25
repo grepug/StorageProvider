@@ -34,6 +34,21 @@ public extension SyncMonitorWithCloudKit {
     }
 }
 
+extension SyncMonitor.SyncSummaryStatus {
+    var text: String {
+        switch self {
+        case .inProgress: return "settings_icloud_SyncSummaryStatus_inProgress".loc
+        case .error: return "settings_icloud_SyncSummaryStatus_error".loc
+        case .accountNotAvailable: return "settings_icloud_SyncSummaryStatus_accountNotAvailable".loc
+        case .notSyncing: return "settings_icloud_SyncSummaryStatus_notSyncing".loc
+        case .noNetwork: return "settings_icloud_SyncSummaryStatus_noNetwork".loc
+        case .succeeded: return "settings_icloud_SyncSummaryStatus_succeeded".loc
+        case .notStarted: return "settings_icloud_SyncSummaryStatus_notStarted".loc
+        case .unknown: return "settings_icloud_SyncSummaryStatus_unknown".loc
+        }
+    }
+}
+
 public extension CloudKitSyncMonitor.SyncMonitor {
     var statusPublisher: AnyPublisher<CloudKitSyncMonitor.SyncMonitor.SyncSummaryStatus, Never> {
         objectWillChange
@@ -45,5 +60,12 @@ public extension CloudKitSyncMonitor.SyncMonitor {
                 logger.info("cloud sync summary changes: \(summary.text)")
             })
             .eraseToAnyPublisher()
+    }
+}
+
+extension CKContainer {
+    public var isProductionEnvironment:Bool {
+        let containerID = self.value(forKey: "containerID") as! NSObject // CKContainerID
+        return containerID.value(forKey: "environment")! as! CLongLong == 1
     }
 }

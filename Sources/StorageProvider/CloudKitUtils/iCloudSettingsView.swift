@@ -12,6 +12,8 @@ import CloudKit
 import os
 import CoreData
 
+#if os(iOS)
+
 fileprivate let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "iCloudSettingsView")
 
 public struct iCloudSettingsView: View {
@@ -217,24 +219,4 @@ public extension iCloudSettingsView {
     }
 }
 
-extension SyncMonitor.SyncSummaryStatus {
-    var text: String {
-        switch self {
-        case .inProgress: return "settings_icloud_SyncSummaryStatus_inProgress".loc
-        case .error: return "settings_icloud_SyncSummaryStatus_error".loc
-        case .accountNotAvailable: return "settings_icloud_SyncSummaryStatus_accountNotAvailable".loc
-        case .notSyncing: return "settings_icloud_SyncSummaryStatus_notSyncing".loc
-        case .noNetwork: return "settings_icloud_SyncSummaryStatus_noNetwork".loc
-        case .succeeded: return "settings_icloud_SyncSummaryStatus_succeeded".loc
-        case .notStarted: return "settings_icloud_SyncSummaryStatus_notStarted".loc
-        case .unknown: return "settings_icloud_SyncSummaryStatus_unknown".loc
-        }
-    }
-}
-
-extension CKContainer {
-    public var isProductionEnvironment:Bool {
-        let containerID = self.value(forKey: "containerID") as! NSObject // CKContainerID
-        return containerID.value(forKey: "environment")! as! CLongLong == 1
-    }
-}
+#endif
