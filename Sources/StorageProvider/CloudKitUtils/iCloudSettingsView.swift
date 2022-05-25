@@ -8,6 +8,11 @@
 import SwiftUI
 import Combine
 import CloudKitSyncMonitor
+import CloudKit
+import os
+import CoreData
+
+fileprivate let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "iCloudSettingsView")
 
 public struct iCloudSettingsView: View {
     @ObservedObject var vcWrapper: ViewControllerWrapper
@@ -17,6 +22,7 @@ public struct iCloudSettingsView: View {
     @ObservedObject private var syncMonitor = SyncMonitor.shared
     
     @State private var showingAlertMessage: AlertMessage?
+    @State private var cloudKitEventError: CKError?
     
     private let timer = Timer.publish(every: 15, on: .main, in: .common).autoconnect()
     
@@ -112,14 +118,37 @@ extension iCloudSettingsView {
                     .foregroundColor(syncMonitor.syncStateSummary.symbolColor)
             }
         } footer: {
-            Text("settings_icloud_footer_failed", bundle: .module)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.secondary)
-                .font(.footnote)
+            VStack(alignment: .leading) {
+                Text("settings_icloud_footer_failed", bundle: .module)
+                Text("Export Error：" + syncMonitor.exportError.debugDescription)
+                Text("Export Error Description：" + (syncMonitor.exportError?.localizedDescription ?? "No Error"))
+                Text("Import Error：" + syncMonitor.importError.debugDescription)
+                Text("Import Error Description：" + (syncMonitor.importError?.localizedDescription ?? "No Error"))
+                Text("CloudKitError: " + cloudKitEventError.debugDescription)
+                Text("isProduction: \(CKContainer.default().isProductionEnvironment.description)")
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.secondary)
+            .font(.footnote)
         }
         .onReceive(timer) { _ in
             syncMonitor.objectWillChange.send()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSPersistentCloudKitContainer.eventChangedNotification)) { notification in
+            if let cloudEvent = notification.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey]
+                as? NSPersistentCloudKitContainer.Event {
+                
+                logger.info("cloudEvent \(cloudEvent.debugDescription, privacy: .public), userInfo: \(notification.userInfo.debugDescription, privacy: .public)")
+                
+                if let error = cloudEvent.error as? CKError {
+                    self.cloudKitEventError = error
+                    
+                    logger.error("CKError \(error.localizedDescription, privacy: .public), Partial Errors By ID: \(error.partialErrorsByItemID.debugDescription, privacy: .public), Code: \(error.errorCode, privacy: .public), userInfo: \(notification.userInfo.debugDescription, privacy: .public)")
+                    logger.error("CKError Record: \(error.ancestorRecord.debugDescription, privacy: .public)")
+                    logger.error("CKError UserInfo: \(error.userInfo, privacy: .public)")
+                }
+            }
         }
     }
     
@@ -200,5 +229,12 @@ extension SyncMonitor.SyncSummaryStatus {
         case .notStarted: return "settings_icloud_SyncSummaryStatus_notStarted".loc
         case .unknown: return "settings_icloud_SyncSummaryStatus_unknown".loc
         }
+    }
+}
+
+extension CKContainer {
+    public var isProductionEnvironment:Bool {
+        let containerID = self.value(forKey: "containerID") as! NSObject // CKContainerID
+        return containerID.value(forKey: "environment")! as! CLongLong == 1
     }
 }
