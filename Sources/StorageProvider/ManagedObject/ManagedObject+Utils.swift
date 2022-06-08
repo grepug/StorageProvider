@@ -187,13 +187,10 @@ public extension Array where Element: ManagedObject {
             return
         }
         
-        context.performAndWait {
-            for item in self {
-                context.delete(item)
-            }
-        }
-        
         do {
+            let deleteRequest = NSBatchDeleteRequest(objectIDs: map(\.objectID))
+            
+            try context.execute(deleteRequest)
             try context.save()
         } catch {
             context.rollback()
