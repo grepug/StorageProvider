@@ -188,10 +188,19 @@ public extension Array where Element: ManagedObject {
         }
         
         do {
-            let deleteRequest = NSBatchDeleteRequest(objectIDs: map(\.objectID))
+            let objectIDs = map(\.objectID)
+            let deleteRequest = NSBatchDeleteRequest(objectIDs: objectIDs)
+            let deleteResult = try context.execute(deleteRequest) as? NSBatchDeleteResult
             
-            try context.execute(deleteRequest)
-            try context.save()
+            // Extract the IDs of the deleted managed objectss from the request's result.
+            if let objectIDs = deleteResult?.result as? [NSManagedObjectID] {
+                
+                // Merge the deletions into the app's managed object context.
+                NSManagedObjectContext.mergeChanges(
+                    fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs],
+                    into: [context]
+                )
+            }
         } catch {
             context.rollback()
         }
