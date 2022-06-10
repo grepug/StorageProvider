@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import SwiftUI
 
 public protocol ManagedObject: NSManagedObject {
     var id: UUID? { get set }
@@ -14,4 +15,43 @@ public protocol ManagedObject: NSManagedObject {
     
     static var viewContext: NSManagedObjectContext { get }
     static func newBackgroundContext() -> NSManagedObjectContext
+}
+
+public protocol Unwrappable {
+    static var defaultValue: Self { get }
+}
+
+extension Date: Unwrappable {
+    public static var defaultValue: Date { .init() }
+}
+
+extension String: Unwrappable {
+    public static var defaultValue: String { "" }
+}
+
+extension UUID: Unwrappable {
+    public static var defaultValue: UUID { .init() }
+}
+
+public extension ManagedObject {
+    subscript<T: Unwrappable>(_ keyPath: ReferenceWritableKeyPath<Self, T?>) -> T {
+        get {
+            self[keyPath: keyPath] ?? T.defaultValue
+        }
+        
+        set {
+            self[keyPath: keyPath] = newValue
+        }
+    }
+}
+
+public extension Binding where Value == Optional<Unwrappable> {
+    func unwrapped<T: Unwrappable>(defaultsTo defaultValue: T? = nil) -> Binding<Unwrappable> {
+        .init {
+            wrappedValue ?? defaultValue ?? T.defaultValue
+        } set: { newValue in
+            wrappedValue = newValue
+        }
+
+    }
 }
