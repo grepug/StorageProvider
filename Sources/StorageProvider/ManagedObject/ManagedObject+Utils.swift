@@ -227,3 +227,34 @@ public extension Optional where Wrapped == NSSet {
     }
 }
 
+
+public enum DidChangeType {
+    case deletion, insertion, update
+    
+    var key: String {
+        switch self {
+        case .deletion: return NSDeletedObjectsKey
+        case .insertion: return NSInsertedObjectsKey
+        case .update: return NSUpdatedObjectsKey
+        }
+    }
+}
+
+public extension ManagedObject {
+    static func didChangePublisher(_ type: DidChangeType) -> AnyPublisher<Set<Self>, Never> {
+        NotificationCenter.default
+            .publisher(for: NSNotification.Name.NSManagedObjectContextObjectsDidChange)
+            .compactMap { notification -> Set<Self>? in
+                guard let userInfo = notification.userInfo else {
+                    return nil
+                }
+                
+                guard let objects = userInfo[type.key] as? Set<Self>, !objects.isEmpty else {
+                    return nil
+                }
+                
+                return objects
+            }
+            .eraseToAnyPublisher()
+    }
+}
