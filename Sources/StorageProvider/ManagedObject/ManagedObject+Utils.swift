@@ -228,33 +228,49 @@ public extension Optional where Wrapped == NSSet {
 }
 
 
-public enum DidChangeType {
-    case deletion, insertion, update
+public struct ChangeResult<Object: ManagedObject> {
+    public var deletions: Set<Object>?
+    public var insertions: Set<Object>?
+    public var updates: Set<Object>?
     
-    var key: String {
-        switch self {
-        case .deletion: return NSDeletedObjectsKey
-        case .insertion: return NSInsertedObjectsKey
-        case .update: return NSUpdatedObjectsKey
-        }
+    public var hasChanges: Bool {
+        deletions != nil ||
+        insertions != nil ||
+        updates != nil
     }
 }
 
 public extension ManagedObject {
-    static func didChangePublisher(_ type: DidChangeType) -> AnyPublisher<Set<Self>, Never> {
+    static var didChangePublisher: AnyPublisher<ChangeResult<Self>, Never> {
         NotificationCenter.default
-            .publisher(for: NSNotification.Name.NSManagedObjectContextObjectsDidChange)
-            .compactMap { notification -> Set<Self>? in
+            .publisher(for: NSManagedObjectContext.didChangeObjectsNotification)
+            .compactMap { notification -> ChangeResult<Self>? in
                 guard let userInfo = notification.userInfo else {
                     return nil
                 }
                 
-                guard let objects = userInfo[type.key] as? Set<Self>, !objects.isEmpty else {
+                var result = ChangeResult<Self>()
+                
+                if let objects = userInfo[NSDeletedObjectsKey] as? Set<Self>, !objects.isEmpty {
+                    result.deletions = objects
+                }
+                
+                if let objects = userInfo[NSInsertedObjectsKey] as? Set<Self>, !objects.isEmpty {
+                    result.insertions = objects
+                }
+                
+                if let objects = userInfo[NSUpdatedObjectsKey] as? Set<Self>, !objects.isEmpty {
+                    result.updates = objects
+                }
+                
+                guard result.hasChanges else {
                     return nil
                 }
                 
-                return objects
+                return result
             }
             .eraseToAnyPublisher()
     }
+    
+    
 }
