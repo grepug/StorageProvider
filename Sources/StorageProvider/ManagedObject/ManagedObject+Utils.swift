@@ -242,6 +242,10 @@ public struct ChangeResult<Object: ManagedObject> {
         updates != nil
     }
     
+    public var union: Set<Object> {
+        deletions?.union(insertions?.union(updates ?? []) ?? []) ?? []
+    }
+    
     public func changeType(of object: Object) -> ChangeType? {
         if let deletions = deletions, deletions.contains(object) {
             return .deletion
