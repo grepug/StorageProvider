@@ -227,6 +227,9 @@ public extension Optional where Wrapped == NSSet {
     }
 }
 
+public enum ChangeType {
+    case insertion, deletion, update
+}
 
 public struct ChangeResult<Object: ManagedObject> {
     public var deletions: Set<Object>?
@@ -237,6 +240,22 @@ public struct ChangeResult<Object: ManagedObject> {
         deletions != nil ||
         insertions != nil ||
         updates != nil
+    }
+    
+    public func changeType(of object: Object) -> ChangeType? {
+        if let deletions = deletions, deletions.contains(object) {
+            return .deletion
+        }
+        
+        if let insertions = insertions, insertions.contains(object) {
+            return .insertion
+        }
+        
+        if let updates = updates, updates.contains(object) {
+            return .update
+        }
+        
+        return nil
     }
 }
 
