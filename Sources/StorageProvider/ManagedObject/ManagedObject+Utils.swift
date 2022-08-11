@@ -17,8 +17,8 @@ public extension ManagedObject {
         obj.id = UUID()
         obj.createdAt = date
         obj.updatedAt = date
-        obj.createdBuild = Self.buildNumber
-        obj.updatedBuild = Self.buildNumber
+        obj.createdBuild = Int32(Self.buildNumber)
+        obj.updatedBuild = Int32(Self.buildNumber)
         
         return obj
     }
