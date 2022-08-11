@@ -134,7 +134,7 @@ public extension ManagedObject {
               context: context ?? viewContext).first
     }
     
-    static func fetch(byId id: UUID, context: NSManagedObjectContext = Self.newBackgroundContext()) async throws -> Self? {
+    static func fetch(byId id: UUID, context: NSManagedObjectContext = newBackgroundContext()) async throws -> Self? {
         try await fetch(where: .init(format: "id == %@", id as CVarArg),
                         sortedBy: nil,
                         fetchLimit: 1,
@@ -205,6 +205,10 @@ public extension ManagedObject {
         } catch {
             context.rollback()
         }
+    }
+    
+    func updateBuild() {
+        updatedBuild = Int32(Self.buildNumber)
     }
 }
 
