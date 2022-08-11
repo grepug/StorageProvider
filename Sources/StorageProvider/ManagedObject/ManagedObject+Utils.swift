@@ -304,21 +304,17 @@ public extension ManagedObject {
                 }
                 
                 var result = ChangeResult<Self>()
+                let keys: [String] = [NSDeletedObjectsKey, NSInsertedObjectsKey, NSUpdatedObjectsKey]
                 
-                if let objects = userInfo[NSDeletedObjectsKey] as? Set<Self>, !objects.isEmpty {
-                    result.deletions = objects
-                }
-                
-                if let objects = userInfo[NSInsertedObjectsKey] as? Set<Self>, !objects.isEmpty {
-                    result.insertions = objects
-                }
-                
-                if let objects = userInfo[NSUpdatedObjectsKey] as? Set<Self>, !objects.isEmpty {
-                    result.updates = objects
-                }
-                
-                guard result.hasChanges else {
-                    return nil
+                for key in keys {
+                    if let objects = unwrapObjects(ofType: Self.self, objects: userInfo[key]) {
+                        switch key {
+                        case keys[0]: result.deletions = objects
+                        case keys[1]: result.insertions = objects
+                        case keys[2]: result.updates = objects
+                        default: fatalError()
+                        }
+                    }
                 }
                 
                 return result
@@ -326,5 +322,19 @@ public extension ManagedObject {
             .eraseToAnyPublisher()
     }
     
-    
+    private static func unwrapObjects<T: ManagedObject>(ofType type: T.Type, objects: Any?) -> Set<T>? {
+        var results: Set<T> = []
+        
+        guard let objects = objects as? Set<NSManagedObject> else {
+            return nil
+        }
+        
+        for object in objects {
+            if let object = object as? T {
+                results.insert(object)
+            }
+        }
+        
+        return results.isEmpty ? nil : results
+    }
 }
