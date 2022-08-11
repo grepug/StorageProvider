@@ -35,28 +35,19 @@ extension ManagedObject {
 }
 
 public extension ManagedObject {
-    @available(iOS 15.0, macOS 15.0, *)
     static func fetch(where predicate: NSPredicate?,
                       sortedBy sortDescriptors: [NSSortDescriptor]?,
                       fetchLimit: Int?,
-                      context: NSManagedObjectContext?) async -> [Self] {
-        let context = context ?? Self.viewContext
-        
-        let results = try? await context.perform(schedule: .enqueued) { () -> [Self] in
-            let request = Self.fetchRequest()
-            request.predicate = predicate
-            request.sortDescriptors = sortDescriptors ?? [.updated, .created]
-            
-            if let fetchLimit = fetchLimit {
-                request.fetchLimit = fetchLimit
+                      context: NSManagedObjectContext?) async throws -> [Self] {
+        try await withCheckedThrowingContinuation { continuation in
+            myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: objects)
+                }
             }
-            
-            request.resultType = .managedObjectResultType
-            
-            return try request.execute() as! [Self]
         }
-        
-        return results ?? []
     }
     
     static func fetch(where predicate: NSPredicate? = nil,
