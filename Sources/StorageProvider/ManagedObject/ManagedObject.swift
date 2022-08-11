@@ -12,6 +12,8 @@ public protocol ManagedObject: NSManagedObject {
     var id: UUID? { get set }
     var createdAt: Date? { get set }
     var updatedAt: Date? { get set }
+    var createdBuild: Int? { get set }
+    var updatedBuild: Int? { get set }
     
     static var viewContext: NSManagedObjectContext { get }
     static func newBackgroundContext() -> NSManagedObjectContext

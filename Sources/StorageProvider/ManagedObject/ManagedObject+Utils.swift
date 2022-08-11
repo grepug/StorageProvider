@@ -17,8 +17,20 @@ public extension ManagedObject {
         obj.id = UUID()
         obj.createdAt = date
         obj.updatedAt = date
+        obj.createdBuild = Self.buildNumber
+        obj.updatedBuild = Self.buildNumber
         
         return obj
+    }
+}
+
+extension ManagedObject {
+    static var buildNumberString: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    }
+    
+    static var buildNumber: Int {
+        Int(Self.buildNumberString) ?? 0
     }
 }
 
