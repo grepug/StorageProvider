@@ -38,7 +38,7 @@ public extension ManagedObject {
     static func fetch(where predicate: NSPredicate?,
                       sortedBy sortDescriptors: [NSSortDescriptor]?,
                       fetchLimit: Int?,
-                      context: NSManagedObjectContext?) async throws -> [Self] {
+                      context: NSManagedObjectContext = newBackgroundContext()) async throws -> [Self] {
         try await withCheckedThrowingContinuation { continuation in
             myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
                 if let error = error {
@@ -83,11 +83,28 @@ public extension ManagedObject {
     
     static func fetchCount(where predicate: NSPredicate? = nil,
                            context: NSManagedObjectContext? = nil) -> Int {
-        let context = context ?? Self.viewContext
-        let request = Self.fetchRequest()
+        let context = context ?? viewContext
+        let request = fetchRequest()
         request.predicate = predicate
         
         return (try? context.count(for: request)) ?? 0
+    }
+    
+    static func fetchCount(where predicate: NSPredicate? = nil,
+                           context: NSManagedObjectContext = newBackgroundContext()) async throws -> Int? {
+        try await withCheckedThrowingContinuation { continuation in
+            context.perform {
+                let request = fetchRequest()
+                request.predicate = predicate
+                
+                do {
+                    let count = try context.count(for: request)
+                    continuation.resume(returning: count)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
     
     static func fetchCountPublisher(where predicate: NSPredicate? = nil) -> AnyPublisher<Int, Error> {
@@ -113,8 +130,15 @@ public extension ManagedObject {
     }
     
     static func fetch(byId id: UUID, context: NSManagedObjectContext? = nil) -> Self? {
-        Self.fetch(where: .init(format: "id == %@", id as CVarArg),
-                   context: context ?? Self.viewContext).first
+        fetch(where: .init(format: "id == %@", id as CVarArg),
+              context: context ?? viewContext).first
+    }
+    
+    static func fetch(byId id: UUID, context: NSManagedObjectContext = Self.newBackgroundContext()) async throws -> Self? {
+        try await fetch(where: .init(format: "id == %@", id as CVarArg),
+                        sortedBy: nil,
+                        fetchLimit: 1,
+                        context: context).first
     }
 }
 
