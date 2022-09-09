@@ -9,28 +9,19 @@ import CoreData
 import Foundation
 
 public class StorageProvider {
+    public init(storeDescriptionConfigurations: [StoreDescriptionConfiguration], objectModel: NSManagedObjectModel? = nil, modelName: String, iCloudEnabled: Bool) {
+        self.storeDescriptionConfigurations = storeDescriptionConfigurations
+        self.objectModel = objectModel
+        self.modelName = modelName
+        self.iCloudEnabled = iCloudEnabled
+    }
+    
     public lazy var persistentContainer = makeContainer()
 
+    let storeDescriptionConfigurations: [StoreDescriptionConfiguration]
     var objectModel: NSManagedObjectModel?
     let modelName: String
-    let databaseName: String
-    let appGroupIdentifier: String
     var iCloudEnabled: Bool
-    let iCloudContainerIdentifier: String?
-    
-    public init(modelName: String,
-                databaseName: String,
-                appGroupIdentifier: String,
-                iCloudEnabled: Bool,
-                iCloudContainerIdentifier: String?,
-                objectModel: NSManagedObjectModel? = nil) {
-        self.databaseName = databaseName
-        self.modelName = modelName
-        self.appGroupIdentifier = appGroupIdentifier
-        self.objectModel = objectModel
-        self.iCloudEnabled = iCloudEnabled
-        self.iCloudContainerIdentifier = iCloudContainerIdentifier
-    }
 }
 
 public extension StorageProvider {
@@ -41,24 +32,6 @@ public extension StorageProvider {
 }
 
 extension StorageProvider {
-    var cloudKitOptions: NSPersistentCloudKitContainerOptions? {
-        guard let identifier = iCloudContainerIdentifier else {
-            return nil
-        }
-        
-        return NSPersistentCloudKitContainerOptions(containerIdentifier: identifier)
-    }
-    
-    func makeStoreDescription() -> NSPersistentStoreDescription {
-        let storeURL = URL.storeURL(for: appGroupIdentifier, databaseName: databaseName)
-        let storeDescription = NSPersistentStoreDescription(url: storeURL)
-        
-        storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-        storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
-        
-        return storeDescription
-    }
-    
     func makeContainer() -> NSPersistentContainer {
         let persistentContainer: NSPersistentCloudKitContainer
         
@@ -68,10 +41,11 @@ extension StorageProvider {
             persistentContainer = NSPersistentCloudKitContainer(name: modelName)
         }
         
-        let storeDescription = makeStoreDescription()
-        storeDescription.cloudKitContainerOptions = iCloudEnabled ? cloudKitOptions : nil
+        let storeDescriptions: [NSPersistentStoreDescription] = storeDescriptionConfigurations.map {
+            $0.storeDescription(iCloudEnabled: iCloudEnabled)
+        }
         
-        persistentContainer.persistentStoreDescriptions = [storeDescription]
+        persistentContainer.persistentStoreDescriptions = storeDescriptions
         persistentContainer.loadPersistentStores { [weak self] description, error in
             if let error = error {
                 fatalError("Core Data store failed to load with error: \(error)")
@@ -103,15 +77,5 @@ public extension StorageProvider {
                 }
             }
         }
-    }
-}
-
-extension URL {
-    static func storeURL(for appGroup: String, databaseName: String) -> URL {
-        guard let fileContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {
-            fatalError("Shared file container could not be created.")
-        }
-
-        return fileContainer.appendingPathComponent("\(databaseName).sqlite")
     }
 }
