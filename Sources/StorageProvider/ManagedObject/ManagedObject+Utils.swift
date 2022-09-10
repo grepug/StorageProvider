@@ -9,6 +9,19 @@ import Foundation
 import CoreData
 import Combine
 
+public extension SimpleManagedObject {
+    static func initWithViewContext(_ context: NSManagedObjectContext? = nil) -> Self {
+        let context = context ?? Self.viewContext
+        let obj = Self.init(context: context)
+        let date = Date()
+        obj.id = UUID()
+        obj.createdAt = date
+        obj.updatedAt = date
+        
+        return obj
+    }
+}
+
 public extension ManagedObject {
     static func initWithViewContext(_ context: NSManagedObjectContext? = nil) -> Self {
         let context = context ?? Self.viewContext
@@ -24,7 +37,7 @@ public extension ManagedObject {
     }
 }
 
-extension ManagedObject {
+extension SimpleManagedObject {
     static var buildNumberString: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
     }
@@ -34,7 +47,7 @@ extension ManagedObject {
     }
 }
 
-public extension ManagedObject {
+public extension SimpleManagedObject {
     static func fetch(where predicate: NSPredicate?,
                       sortedBy sortDescriptors: [NSSortDescriptor]?,
                       fetchLimit: Int?,
@@ -142,7 +155,7 @@ public extension ManagedObject {
     }
 }
 
-extension ManagedObject {
+extension SimpleManagedObject {
     static func myFetch(where predicate: NSPredicate? = nil,
                         sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
                         fetchLimit: Int? = nil,
@@ -189,7 +202,7 @@ extension ManagedObject {
     }
 }
 
-public extension ManagedObject {
+public extension SimpleManagedObject {
     func delete() {
         let context = Self.viewContext
         context.delete(self)
@@ -207,12 +220,15 @@ public extension ManagedObject {
         }
     }
     
+}
+
+public extension ManagedObject {
     func updateBuild() {
         updatedBuild = Int32(Self.buildNumber)
     }
 }
 
-public extension Array where Element: ManagedObject {
+public extension Array where Element: SimpleManagedObject {
     func deleteAll() {
         guard let context = first?.managedObjectContext else {
             return
@@ -262,7 +278,7 @@ public enum ChangeType {
     case insertion, deletion, update
 }
 
-public struct ChangeResult<Object: ManagedObject> {
+public struct ChangeResult<Object: SimpleManagedObject> {
     public var deletions: Set<Object>?
     public var insertions: Set<Object>?
     public var updates: Set<Object>?
@@ -294,7 +310,7 @@ public struct ChangeResult<Object: ManagedObject> {
     }
 }
 
-public extension ManagedObject {
+public extension SimpleManagedObject {
     static var didChangePublisher: AnyPublisher<ChangeResult<Self>, Never> {
         NotificationCenter.default
             .publisher(for: NSManagedObjectContext.didChangeObjectsNotification)
@@ -322,7 +338,7 @@ public extension ManagedObject {
             .eraseToAnyPublisher()
     }
     
-    private static func unwrapObjects<T: ManagedObject>(ofType type: T.Type, objects: Any?) -> Set<T>? {
+    private static func unwrapObjects<T: SimpleManagedObject>(ofType type: T.Type, objects: Any?) -> Set<T>? {
         var results: Set<T> = []
         
         guard let objects = objects as? Set<NSManagedObject> else {

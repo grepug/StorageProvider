@@ -8,15 +8,18 @@
 import CoreData
 import SwiftUI
 
-public protocol ManagedObject: NSManagedObject {
+public protocol SimpleManagedObject: NSManagedObject {
     var id: UUID? { get set }
     var createdAt: Date? { get set }
     var updatedAt: Date? { get set }
-    var createdBuild: Int32 { get set }
-    var updatedBuild: Int32 { get set }
     
     static var viewContext: NSManagedObjectContext { get }
     static func newBackgroundContext() -> NSManagedObjectContext
+}
+
+public protocol ManagedObject: SimpleManagedObject {
+    var createdBuild: Int32 { get set }
+    var updatedBuild: Int32 { get set }
 }
 
 public protocol Unwrappable {
@@ -35,7 +38,7 @@ extension UUID: Unwrappable {
     public static var defaultValue: UUID { .init() }
 }
 
-public extension ManagedObject {
+public extension SimpleManagedObject {
     subscript<T: Unwrappable>(_ keyPath: ReferenceWritableKeyPath<Self, T?>) -> T {
         get {
             self[keyPath: keyPath] ?? T.defaultValue
