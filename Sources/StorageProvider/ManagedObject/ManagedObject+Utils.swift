@@ -333,6 +333,10 @@ public extension SimpleManagedObject {
                     }
                 }
                 
+                guard result.hasChanges else {
+                    return nil
+                }
+                
                 return result
             }
             .eraseToAnyPublisher()
