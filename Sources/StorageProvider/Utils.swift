@@ -24,7 +24,7 @@ class ViewControllerWrapper: ObservableObject {
     weak var vc: UIViewController?
 
     var isCollapsed: Bool {
-        vc?.splitViewController?.isCollapsed ?? false
+        vc?.splitViewController?.isCollapsed ?? true
     }
 }
 #endif
