@@ -48,16 +48,17 @@ extension SimpleManagedObject {
 }
 
 public extension SimpleManagedObject {
-    static func fetch(where predicate: NSPredicate?,
-                      sortedBy sortDescriptors: [NSSortDescriptor]?,
-                      fetchLimit: Int?,
-                      context: NSManagedObjectContext = newBackgroundContext()) async throws -> [Self] {
+    static func fetch<T>(where predicate: NSPredicate?,
+                      sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                      fetchLimit: Int? = nil,
+                      context: NSManagedObjectContext = newBackgroundContext(),
+                      transform: @escaping ([Self]) -> T) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
             myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else {
-                    continuation.resume(returning: objects)
+                    continuation.resume(returning: transform(objects))
                 }
             }
         }
@@ -65,12 +66,11 @@ public extension SimpleManagedObject {
     
     static func fetch(where predicate: NSPredicate? = nil,
                       sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                      fetchLimit: Int? = nil,
-                      context: NSManagedObjectContext? = nil) -> [Self] {
+                      fetchLimit: Int? = nil) -> [Self] {
         myFetch(where: predicate,
                 sortedBy: sortDescriptors,
                 fetchLimit: fetchLimit,
-                context: context)
+                context: viewContext)
     }
     
     static func fetchPublisher<T>(where predicate: NSPredicate? = nil,
@@ -143,15 +143,18 @@ public extension SimpleManagedObject {
     }
     
     static func fetch(byId id: UUID, context: NSManagedObjectContext? = nil) -> Self? {
-        fetch(where: .init(format: "id == %@", id as CVarArg),
-              context: context ?? viewContext).first
+        fetch(where: .init(format: "id == %@", id as CVarArg)).first
     }
     
-    static func fetch(byId id: UUID, context: NSManagedObjectContext = newBackgroundContext()) async throws -> Self? {
+    static func fetch<T>(byId id: UUID,
+                      context: NSManagedObjectContext = newBackgroundContext(),
+                      transform: @escaping (Self?) -> T) async throws -> T {
         try await fetch(where: .init(format: "id == %@", id as CVarArg),
                         sortedBy: nil,
                         fetchLimit: 1,
-                        context: context).first
+                        context: context, transform: { objects in
+            transform(objects.first)
+        })
     }
 }
 
