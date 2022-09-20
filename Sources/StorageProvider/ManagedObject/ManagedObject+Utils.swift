@@ -66,11 +66,12 @@ public extension SimpleManagedObject {
     
     static func fetch(where predicate: NSPredicate? = nil,
                       sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                      fetchLimit: Int? = nil) -> [Self] {
+                      fetchLimit: Int? = nil,
+                      context: NSManagedObjectContext? = nil) -> [Self] {
         myFetch(where: predicate,
                 sortedBy: sortDescriptors,
                 fetchLimit: fetchLimit,
-                context: viewContext)
+                context: context ?? viewContext)
     }
     
     static func fetchPublisher<T>(where predicate: NSPredicate? = nil,
@@ -143,7 +144,7 @@ public extension SimpleManagedObject {
     }
     
     static func fetch(byId id: UUID, context: NSManagedObjectContext? = nil) -> Self? {
-        fetch(where: .init(format: "id == %@", id as CVarArg)).first
+        fetch(where: .init(format: "id == %@", id as CVarArg), context: context).first
     }
     
     static func fetch<T>(byId id: UUID,
