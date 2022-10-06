@@ -49,10 +49,10 @@ extension SimpleManagedObject {
 
 public extension SimpleManagedObject {
     static func fetch<T>(where predicate: NSPredicate?,
-                      sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                      fetchLimit: Int? = nil,
-                      context: NSManagedObjectContext = newBackgroundContext(),
-                      transform: @escaping ([Self]) -> T) async throws -> T {
+                         sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                         fetchLimit: Int? = nil,
+                         context: NSManagedObjectContext = newBackgroundContext(),
+                         transform: @escaping ([Self]) -> T) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
             myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
                 if let error = error {
@@ -62,6 +62,23 @@ public extension SimpleManagedObject {
                 }
             }
         }
+    }
+    
+    static func fetchAndPerform(where predicate: NSPredicate?,
+                                sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                                fetchLimit: Int? = nil,
+                                context: NSManagedObjectContext = newBackgroundContext(),
+                                perform: @escaping ([Self]) -> Void) async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    perform(objects)
+                    continuation.resume(returning: ())
+                }
+            }
+        } as ()
     }
     
     static func fetch(where predicate: NSPredicate? = nil,
@@ -148,13 +165,25 @@ public extension SimpleManagedObject {
     }
     
     static func fetch<T>(byId id: UUID,
-                      context: NSManagedObjectContext = newBackgroundContext(),
-                      transform: @escaping (Self?) -> T) async throws -> T {
+                         context: NSManagedObjectContext = newBackgroundContext(),
+                         transform: @escaping (Self?) -> T) async throws -> T {
         try await fetch(where: .init(format: "id == %@", id as CVarArg),
                         sortedBy: nil,
                         fetchLimit: 1,
                         context: context, transform: { objects in
             transform(objects.first)
+        })
+    }
+    
+    static func fetchAndPerform(byId id: UUID,
+                                context: NSManagedObjectContext = newBackgroundContext(),
+                                perform: @escaping (Self?) -> Void) async throws {
+        try await fetchAndPerform(where: .init(format: "id == %@", id as CVarArg),
+                                  sortedBy: nil,
+                                  fetchLimit: 1,
+                                  context: context,
+                                  perform: { objects in
+            perform(objects.first)
         })
     }
 }
