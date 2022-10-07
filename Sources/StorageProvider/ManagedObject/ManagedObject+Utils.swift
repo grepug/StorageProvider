@@ -48,6 +48,19 @@ extension SimpleManagedObject {
 }
 
 public extension SimpleManagedObject {
+    static func create<T>(objectAssignment: ((Self) -> Void)? = nil, transform: @escaping (Self) -> T) async throws -> T {
+        let context = Self.newBackgroundContext()
+        
+        return try await context.perform {
+            let object = Self.initWithViewContext(context)
+            objectAssignment?(object)
+            
+            try context.save()
+            
+            return transform(object)
+        }
+    }
+    
     static func fetch<T>(where predicate: NSPredicate?,
                          sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
                          fetchLimit: Int? = nil,
@@ -68,27 +81,31 @@ public extension SimpleManagedObject {
                                 sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
                                 fetchLimit: Int? = nil,
                                 context: NSManagedObjectContext = newBackgroundContext(),
-                                perform: @escaping ([Self]) -> Void) async throws {
+                                perform: @escaping ([Self]) throws -> Void) async throws {
         try await withCheckedThrowingContinuation { continuation in
             myFetch(where: predicate, sortedBy: sortDescriptors, fetchLimit: fetchLimit, context: context) { objects, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else {
-                    perform(objects)
-                    continuation.resume(returning: ())
+                    do {
+                        try perform(objects)
+                        continuation.resume(returning: ())
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
         } as ()
     }
     
-    static func fetch(where predicate: NSPredicate? = nil,
+    static func fetchInViewContext(where predicate: NSPredicate? = nil,
                       sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
                       fetchLimit: Int? = nil,
                       context: NSManagedObjectContext? = nil) -> [Self] {
-        myFetch(where: predicate,
-                sortedBy: sortDescriptors,
-                fetchLimit: fetchLimit,
-                context: context ?? viewContext)
+        myFetchInViewContext(where: predicate,
+                             sortedBy: sortDescriptors,
+                             fetchLimit: fetchLimit,
+                             context: context ?? viewContext)
     }
     
     static func fetchPublisher<T>(where predicate: NSPredicate? = nil,
@@ -160,8 +177,8 @@ public extension SimpleManagedObject {
         .eraseToAnyPublisher()
     }
     
-    static func fetch(byId id: UUID, context: NSManagedObjectContext? = nil) -> Self? {
-        fetch(where: .init(format: "id == %@", id as CVarArg), context: context).first
+    static func fetchInViewContext(byId id: UUID) -> Self? {
+        fetchInViewContext(where: .init(format: "id == %@", id as CVarArg)).first
     }
     
     static func fetch<T>(byId id: UUID,
@@ -177,13 +194,13 @@ public extension SimpleManagedObject {
     
     static func fetchAndPerform(byId id: UUID,
                                 context: NSManagedObjectContext = newBackgroundContext(),
-                                perform: @escaping (Self?) -> Void) async throws {
+                                perform: @escaping (Self?) throws -> Void) async throws {
         try await fetchAndPerform(where: .init(format: "id == %@", id as CVarArg),
                                   sortedBy: nil,
                                   fetchLimit: 1,
                                   context: context,
                                   perform: { objects in
-            perform(objects.first)
+            try perform(objects.first)
         })
     }
 }
@@ -213,10 +230,10 @@ extension SimpleManagedObject {
         }
     }
     
-    static func myFetch(where predicate: NSPredicate? = nil,
-                        sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                        fetchLimit: Int? = nil,
-                        context: NSManagedObjectContext?) -> [Self] {
+    static func myFetchInViewContext(where predicate: NSPredicate? = nil,
+                                     sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                                     fetchLimit: Int? = nil,
+                                     context: NSManagedObjectContext?) -> [Self] {
         let context = context ?? Self.viewContext
         let request = Self.fetchRequest()
         request.predicate = predicate
