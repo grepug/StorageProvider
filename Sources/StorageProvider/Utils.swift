@@ -17,6 +17,16 @@ extension String {
     }
 }
 
+public extension Array where Element == NSPredicate {
+    var allSatisfied: NSPredicate {
+        NSCompoundPredicate(andPredicateWithSubpredicates: self)
+    }
+    
+    var partialSatisfied: NSPredicate {
+        NSCompoundPredicate(orPredicateWithSubpredicates: self)
+    }
+}
+
 #if os(iOS)
 import UIKit
 
