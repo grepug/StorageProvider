@@ -98,10 +98,10 @@ public extension SimpleManagedObject {
         } as ()
     }
     
-    static func fetchInViewContext(where predicate: NSPredicate? = nil,
-                                   sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                                   fetchLimit: Int? = nil,
-                                   context: NSManagedObjectContext? = nil) -> [Self] {
+    static func fetchSync(where predicate: NSPredicate? = nil,
+                          sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                          fetchLimit: Int? = nil,
+                          context: NSManagedObjectContext? = nil) -> [Self] {
         myFetchInViewContext(where: predicate,
                              sortedBy: sortDescriptors,
                              fetchLimit: fetchLimit,
@@ -178,7 +178,7 @@ public extension SimpleManagedObject {
     }
     
     static func fetchInViewContext(byId id: UUID) -> Self? {
-        fetchInViewContext(where: .init(format: "id == %@", id as CVarArg)).first
+        fetchSync(where: .init(format: "id == %@", id as CVarArg)).first
     }
     
     static func fetch<T>(byId id: UUID,
