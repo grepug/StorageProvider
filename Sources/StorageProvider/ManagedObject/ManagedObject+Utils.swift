@@ -177,8 +177,8 @@ public extension SimpleManagedObject {
         .eraseToAnyPublisher()
     }
     
-    static func fetchInViewContext(byId id: UUID) -> Self? {
-        fetchSync(where: .init(format: "id == %@", id as CVarArg)).first
+    static func fetchSync(byId id: UUID, context: NSManagedObjectContext? = nil) -> Self? {
+        fetchSync(where: .init(format: "id == %@", id as CVarArg), context: context).first
     }
     
     static func fetch<T>(byId id: UUID,
@@ -254,13 +254,13 @@ extension SimpleManagedObject {
 
 public extension SimpleManagedObject {
     func delete() {
-        let context = Self.viewContext
+        let context = managedObjectContext ?? Self.viewContext
         context.delete(self)
         save()
     }
     
     func save() {
-        let context = Self.viewContext
+        let context = managedObjectContext ?? Self.viewContext
         objectWillChange.send()
         
         do {
