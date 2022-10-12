@@ -99,9 +99,9 @@ public extension SimpleManagedObject {
     }
     
     static func fetchInViewContext(where predicate: NSPredicate? = nil,
-                      sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                      fetchLimit: Int? = nil,
-                      context: NSManagedObjectContext? = nil) -> [Self] {
+                                   sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
+                                   fetchLimit: Int? = nil,
+                                   context: NSManagedObjectContext? = nil) -> [Self] {
         myFetchInViewContext(where: predicate,
                              sortedBy: sortDescriptors,
                              fetchLimit: fetchLimit,
@@ -116,7 +116,7 @@ public extension SimpleManagedObject {
             myFetch(where: predicate,
                     sortedBy: sortDescriptors,
                     fetchLimit: fetchLimit,
-                    context: Self.newBackgroundContext()) { objects, error in
+                    context: Self.viewContext) { objects, error in
                 if let error = error {
                     promise(.failure(error))
                 } else {
