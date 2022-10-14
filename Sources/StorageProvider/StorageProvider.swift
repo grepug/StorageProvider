@@ -14,9 +14,13 @@ public class StorageProvider {
         self.objectModel = objectModel
         self.modelName = modelName
         self.iCloudEnabled = iCloudEnabled
+        self.persistentContainer = Self.makeContainer(objectModel: objectModel,
+                                                      modelName: modelName,
+                                                      storeDescriptionConfigurations: storeDescriptionConfigurations,
+                                                      iCloudEnabled: iCloudEnabled)
     }
     
-    public lazy var persistentContainer = makeContainer()
+    public var persistentContainer: NSPersistentContainer
 
     let storeDescriptionConfigurations: [StoreDescriptionConfiguration]
     var objectModel: NSManagedObjectModel?
@@ -27,12 +31,14 @@ public class StorageProvider {
 public extension StorageProvider {
     func iCloudToggle(iCloudEnabled: Bool) {
         self.iCloudEnabled = iCloudEnabled
-        persistentContainer = makeContainer()
+        persistentContainer = Self.makeContainer(objectModel: objectModel, modelName: modelName, storeDescriptionConfigurations: storeDescriptionConfigurations, iCloudEnabled: iCloudEnabled) { [weak self] objectModel in
+            self?.objectModel = objectModel
+        }
     }
 }
 
 extension StorageProvider {
-    func makeContainer() -> NSPersistentContainer {
+    static func makeContainer(objectModel: NSManagedObjectModel?, modelName: String, storeDescriptionConfigurations: [StoreDescriptionConfiguration], iCloudEnabled: Bool, completion: ((NSManagedObjectModel) -> Void)? = nil) -> NSPersistentContainer {
         let persistentContainer: NSPersistentCloudKitContainer
         
         if let model = objectModel {
@@ -46,14 +52,14 @@ extension StorageProvider {
         }
         
         persistentContainer.persistentStoreDescriptions = storeDescriptions
-        persistentContainer.loadPersistentStores { [weak self] description, error in
+        persistentContainer.loadPersistentStores { description, error in
             if let error = error {
                 fatalError("Core Data store failed to load with error: \(error)")
             }
             
             print(description)
             persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
-            self?.objectModel = persistentContainer.managedObjectModel
+            completion?(persistentContainer.managedObjectModel)
         }
         
         return persistentContainer
