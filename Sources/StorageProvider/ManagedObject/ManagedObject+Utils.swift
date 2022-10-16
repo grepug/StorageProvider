@@ -134,6 +134,13 @@ public extension SimpleManagedObject {
         }
     }
     
+    static func fetchCount(where predicateString: String? = nil,
+                           context: NSManagedObjectContext = newBackgroundContext()) async throws -> Int? {
+        let predicate = predicateString.map { NSPredicate(format: $0) }
+        
+        return try await fetchCount(where: predicate, context: context)
+    }
+    
     static func fetchCountPublisher(where predicate: NSPredicate? = nil) -> AnyPublisher<Int, Error> {
         Future { promise in
             let context = Self.newBackgroundContext()
