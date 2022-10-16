@@ -108,27 +108,6 @@ public extension SimpleManagedObject {
                              context: context ?? viewContext)
     }
     
-    static func fetchPublisher<T>(where predicate: NSPredicate? = nil,
-                                  sortedBy sortDescriptors: [NSSortDescriptor]? = nil,
-                                  fetchLimit: Int? = nil,
-                                  transform: @escaping ([Self]) -> [T]) -> AnyPublisher<[T], Error> {
-        Future { promise in
-            myFetch(where: predicate,
-                    sortedBy: sortDescriptors,
-                    fetchLimit: fetchLimit,
-                    context: Self.viewContext) { objects, error in
-                if let error = error {
-                    promise(.failure(error))
-                } else {
-                    let result = transform(objects)
-                    promise(.success(result))
-                }
-            }
-        }
-        .receive(on: RunLoop.main)
-        .eraseToAnyPublisher()
-    }
-    
     static func fetchCount(where predicate: NSPredicate? = nil,
                            context: NSManagedObjectContext? = nil) -> Int {
         let context = context ?? viewContext
