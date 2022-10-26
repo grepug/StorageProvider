@@ -14,12 +14,12 @@ public extension StorageProvider {
         guard let monitor = SyncMonitor.shared as? SyncMonitorWithCloudKit else {
             return true
         }
-           
+        
         guard monitor.isCloudEnabled else {
             return true
         }
         
-        return SyncMonitor.shared.syncStateSummary == .succeeded
+        return SyncMonitor.shared.syncStateSummary != .inProgress
     }
     
     static var dbChangePublisher: AnyPublisher<Void, Never> {
