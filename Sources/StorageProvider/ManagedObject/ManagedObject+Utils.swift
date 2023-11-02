@@ -206,6 +206,7 @@ extension SimpleManagedObject {
             request.fetchLimit = fetchLimit
         }
         
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         context.perform {
             do {
                 let items = try context.fetch(request) as! [Self]
